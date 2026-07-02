@@ -31,6 +31,14 @@ class NovelsSpiderSpider(scrapy.Spider):
         # 1. Traé el HTML crudo del contenedor (no el texto)
         raw_html = response.css(".moreless__full").get()
 
+        # Fallback: descripciones cortas no tienen el wrapper moreless__short/__full
+        if raw_html is None:
+            raw_html = response.css(".moreless.cont-text").get()
+
+        if raw_html is None:
+            self.logger.warning(f"No se encontró descripción en {response.url}")
+            return None
+
         # 2. Sacá el link "Collapse" antes de seguir (no lo querés en la descripción)
         raw_html = re.sub(
         r'<a[^>]*class="[^"]*moreless__toggle[^"]*"[^>]*>.*?</a>',
