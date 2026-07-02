@@ -7,6 +7,13 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+from dotenv import load_dotenv
+
+load_dotenv()
+import os
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 BOT_NAME = "novels"
 
 SPIDER_MODULES = ["novels.spiders"]
@@ -21,13 +28,21 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
-# Concurrency and throttling settings
-#CONCURRENT_REQUESTS = 16
-CONCURRENT_REQUESTS_PER_DOMAIN = 1
-DOWNLOAD_DELAY = 1
+# Download a maximum of 1 page at a time to prevent server strain
+CONCURRENT_REQUESTS = 1
 
-# Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+# Introduce a random delay between 2 to 5 seconds per chapter
+DOWNLOAD_DELAY = 3.0
+RANDOMIZE_DOWNLOAD_DELAY = True
+
+# Disable cookies so the site doesn't track your session history
+COOKIES_ENABLED = False
+
+# Pipeline settings
+ITEM_PIPELINES = {
+   "novels.pipelines.NovelsPipeline": 300,
+}
+
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
