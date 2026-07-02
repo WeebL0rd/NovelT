@@ -7,6 +7,20 @@ import scrapy
 
 
 class NovelsItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    externalId = scrapy.Field()
+    slug = scrapy.Field()
+    title = scrapy.Field() 
+    description = scrapy.Field()
+    status = scrapy.Field()
+    chapters = scrapy.Field()
+    publishYear = scrapy.Field()
+    language = scrapy.Field()
+    authors = scrapy.Field()
+    publishers = scrapy.Field()
+    genres = scrapy.Field()
+    events = scrapy.Field()
+    coverUrl = scrapy.Field()
+    firstChapterUrl = scrapy.Field()
+
+
+

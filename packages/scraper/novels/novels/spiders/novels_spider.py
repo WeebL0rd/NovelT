@@ -1,6 +1,9 @@
+from logging import NullHandler
+
 import scrapy
 import re
 from w3lib.html import remove_tags
+from novels.items import NovelsItem
 
 
 class NovelsSpiderSpider(scrapy.Spider):
@@ -29,7 +32,12 @@ class NovelsSpiderSpider(scrapy.Spider):
         raw_html = response.css(".moreless__full").get()
 
         # 2. Sacá el link "Collapse" antes de seguir (no lo querés en la descripción)
-        raw_html = re.sub(r'<a class="moreless__toggle.*?</a>', '', raw_html, flags=re.DOTALL)
+        raw_html = re.sub(
+        r'<a[^>]*class="[^"]*moreless__toggle[^"]*"[^>]*>.*?</a>',
+        '',
+        raw_html,
+        flags=re.DOTALL
+    )
 
         # 3. Reemplazá <br> (en sus variantes) por un salto de línea real
         raw_html = re.sub(r'<br\s*/?>', '\n', raw_html)
@@ -84,7 +92,16 @@ class NovelsSpiderSpider(scrapy.Spider):
         events = genresEvents[1].css("a::text").getall()
         events = [event.strip() for event in events] if events else []
 
+        coverUrl = response.css(".poster a::attr(href)").get()
+
+        firstChapterLi = self.getByTitle(response.css(".r-fullstory-chapters-foot a"), "First")
+        relativeChapterUrl = firstChapterLi.css("::attr(href)").get() if firstChapterLi else None
+        firstChapterUrl = response.urljoin(relativeChapterUrl) if relativeChapterUrl else None
+
+
         novel = {
+            "externalId": self.novelId,
+            "slug": self.slug,
             "title": title,
             "description": description,
             "status": status,
@@ -95,7 +112,11 @@ class NovelsSpiderSpider(scrapy.Spider):
             "publishers": publishers,
             "genres": genres,
             "events": events,
+
+            "coverUrl": coverUrl,
+            "firstChapterUrl": firstChapterUrl
         }
+        novel = NovelsItem(**novel) 
 
         yield novel
 
